@@ -1,4 +1,5 @@
 # _*__author__ coding: utf-8 -*-
+from compiler.syntax import check
 import random
 import string
 
@@ -109,10 +110,5 @@ class StupidDBChecker(Server):
         except:
             return Result.MUMBLE, ""
 
-
-
-
 checker = StupidDBChecker()
-res, flag_id =  checker.push("localhost","","THISISFLAG")
-print res
-print checker.pull("localhost",flag_id, "THISISFLAG")
+checker.run()
