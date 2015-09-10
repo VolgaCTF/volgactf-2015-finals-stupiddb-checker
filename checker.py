@@ -15,7 +15,7 @@ import gzip
 def pack_string(str):
     out = StringIO.StringIO()
     with gzip.GzipFile(fileobj=out, mode='w') as f:
-        f.write(unicode(str, "utf-8"))
+        f.write(str)
     return out.getvalue()
 
 
@@ -62,12 +62,13 @@ def genkey():
 class StupidDBChecker(Server):
     def push(self, endpoint, flag_id, flag):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(5)
+        sock.settimeout(10)
         try:
             sock.connect((endpoint, 5010))
             # check full protocol
             key = genkey()
             value = genkey()
+            self.logger.info('key = {0}, value = {1}'.format(key, value))
             res = INSERT(sock, key, value)
             if res != 0:
                 return Result.CORRUPT,""
@@ -93,11 +94,12 @@ class StupidDBChecker(Server):
         except socket.error:
             return Result.DOWN, ""
         except:
+            self.logger.error('Exception', exc_info=True)
             return Result.MUMBLE, ""
 
     def pull(self, endpoint, flag_id, flag):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(5)
+        sock.settimeout(10)
         try:
             sock.connect((endpoint, 5010))
             res = SELECT(sock, flag_id)
@@ -108,6 +110,7 @@ class StupidDBChecker(Server):
         except socket.error:
             return Result.DOWN, ""
         except:
+            self.logger.exception('Exception', exc_info=True)
             return Result.MUMBLE, ""
 
 checker = StupidDBChecker()
